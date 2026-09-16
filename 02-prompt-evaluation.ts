@@ -52,11 +52,29 @@ async function runPrompt(testCase: TestCase) {
 }
 
 async function main() {
-  const testCase = dataset[0];
-  if (testCase) {
-    const result = await runPrompt(testCase);
-    console.log(result);
-  }
+  const results = await runEval(dataset);
+  console.log(JSON.stringify(results, null, 2));
 }
 
 main();
+
+async function runTestCase(testCase: TestCase) {
+  const output = await runPrompt(testCase);
+  const score = 10;
+  return {
+    output: output,
+    testCase: testCase,
+    score: score,
+  };
+}
+
+async function runEval(dataset: TestCase[]) {
+  const results = [];
+
+  for (const testCase of dataset) {
+    const result = await runTestCase(testCase);
+    results.push(result);
+  }
+
+  return results;
+}
