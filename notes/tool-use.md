@@ -38,6 +38,9 @@ A response with a tool is a multi-block message. Its content is a list of blocks
 Claude has no memory, so I must save the whole `response.content` in the history,
 not only the text.
 
+In the user message that sends the results back, the `tool_result` blocks must
+come first. Any extra text goes after them. Otherwise the API returns a 400 error.
+
 ## 5. The multi-turn loop
 
 Sometimes Claude needs several tools in a row (for example: get today's date,
@@ -66,6 +69,9 @@ complete and valid key-value pair before sending it, so chunks come in bursts.
 `fine_grained` turns this validation off. Chunks arrive faster, but the JSON can
 be invalid, so my code must handle parsing errors.
 
+Warning: these names come from the Python course. Check the exact names in the
+TypeScript SDK docs before using this.
+
 ## 8. Built-in tools from Anthropic
 
 - Text editor tool: Claude knows the schema (view, replace, create, insert, undo),
@@ -80,5 +86,7 @@ be invalid, so my code must handle parsing errors.
 - Send the `tools` list again in every request, even the last one.
 - Stop the loop on `stop_reason`, not on the text.
 - Match every `tool_use_id` with its `tool_result`.
+- Put the `tool_result` blocks first in the user message, text after.
 - Only add `tools` to the request when I have some (the API refuses an empty value).
-- From the Sonnet 5.5 docs: forcing a tool with `tool_choice` now returns an error.
+- Forcing a tool with `tool_choice` (types `any` or `tool`) returns a 400 error on
+  Sonnet 5.5 and Opus 5.5 (API release notes, Sept 2026). The default `auto` still works.
